@@ -1,0 +1,33 @@
+/*
+element selector
+p{
+	property:value;
+}
+*/
+
+h2{
+	color:rgb(10, 103, 185)
+}
+
+p{
+	font-family: 'Times New Roman', Times, serif;
+	font-size:20px;;
+	font-weight: bold;
+	text-align: left;
+	color:rgb(201, 107, 48);
+	letter-spacing: 0.05em;
+	text-shadow: 1px 1px 3px rgb(28, 157, 32);
+	text-decoration:aqua;
+	
+}
+
+/*
+id is unique within the perticular page
+*/
+#p1{
+	color:coral;
+}
+
+.prod{
+	color:rgb(67, 225, 32);
+}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firing Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+        }
+        canvas {
+            display: block;
+            background-color: #111;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Spaceship {
+            constructor() {
+                this.width = 50;
+                this.height = 30;
+                this.x = canvas.width / 2 - this.width / 2;
+                this.y = canvas.height - this.height - 20;
+                this.speed = 5;
+                this.image = new Image();
+                this.image.src = 'https://img.icons8.com/ios/50/000000/spaceship.png'; // Replace with your spaceship image URL
+            }
+            draw() {
+                ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+            }
+            move(left, right) {
+                if (left && this.x > 0) this.x -= this.speed;
+                if (right && this.x < canvas.width - this.width) this.x += this.speed;
+            }
+        }
+
+        class Bullet {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 5;
+                this.height = 20;
+                this.speed = 7;
+                this.color = '#f00';
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+            update() {
+                this.y -= this.speed;
+            }
+        }
+
+        class Target {
+            constructor() {
+                this.size = 30;
+                this.x = Math.random() * (canvas.width - this.size);
+                this.y = -this.size;
+                this.speed = Math.random() * 3 + 1;
+                this.color = '#0f0';
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+            }
+            update() {
+                this.y += this.speed;
+            }
+        }
+
+        let spaceship = new Spaceship();
+        let bullets = [];
+        let targets = [];
+        let leftPressed = false;
+        let rightPressed = false;
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            spaceship.draw();
+            spaceship.move(leftPressed, rightPressed);
+
+            bullets.forEach((bullet, index) => {
+                bullet.update();
+                bullet.draw();
+                if (bullet.y < 0) bullets.splice(index, 1); // Remove off-screen bullets
+            });
+
+            targets.forEach((target, index) => {
+                target.update();
+                target.draw();
+                if (target.y > canvas.height) targets.splice(index, 1); // Remove off-screen targets
+            });
+
+            // Collision detection
+            bullets.forEach((bullet, bIndex) => {
+                targets.forEach((target, tIndex) => {
+                    if (bullet.x < target.x + target.size &&
+                        bullet.x + bullet.width > target.x &&
+                        bullet.y < target.y + target.size &&
+                        bullet.y + bullet.height > target.y) {
+                        bullets.splice(bIndex, 1);
+                        targets.splice(tIndex, 1);
+                    }
+                });
+            });
+
+            // Add new targets
+            if (Math.random() < 0.02) targets.push(new Target());
+
+            requestAnimationFrame(update);
+        }
+
+        function keyDownHandler(e) {
+            if (e.key === 'ArrowLeft') leftPressed = true;
+            if (e.key === 'ArrowRight') rightPressed = true;
+            if (e.key === ' ') bullets.push(new Bullet(spaceship.x + spaceship.width / 2 - 2.5, spaceship.y));
+        }
+
+        function keyUpHandler(e) {
+            if (e.key === 'ArrowLeft') leftPressed = false;
+            if (e.key === 'ArrowRight') rightPressed = false;
+        }
+
+        document.addEventListener('keydown', keyDownHandler);
+        document.addEventListener('keyup', keyUpHandler);
+
+        update();
+    </script>
+</body>
+</html>
